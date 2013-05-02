@@ -98,21 +98,13 @@ func condDebugTransport(rt http.RoundTripper) http.RoundTripper {
 }
 
 func getOAuthClient(g_config *oauth.Config) *http.Client {
-	cacheFile := tokenCacheFile(g_config)
+	cacheFile := os.Getenv("GS_TOKEN_FILE")
 
-	access := os.Getenv("GS_ACCESS_TOKEN")
-	refresh := os.Getenv("GS_REFRESH_TOKEN")
-
-	var token *oauth.Token
-	var err error
-	if access == "" && refresh == "" {
-		token, err = tokenFromFile(cacheFile)
-	} else {
-		token = &oauth.Token{
-			AccessToken:  access,
-			RefreshToken: refresh,
-		}
+	if cacheFile == "" {
+		cacheFile = tokenCacheFile(g_config)
 	}
+
+	token, err := tokenFromFile(cacheFile)
 
 	if err != nil {
 		token = tokenFromWeb(g_config)
