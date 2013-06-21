@@ -176,6 +176,7 @@ func openUrl(url string) {
 }
 
 func valueOrFileContents(value string, filename string) string {
+	filename = fmt.Sprintf("%s%s", os.Getenv("FILE_ROOT"), filename)
 	if value != "" {
 		return value
 	}

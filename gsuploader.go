@@ -33,7 +33,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
 type Uploader struct {
@@ -54,27 +53,6 @@ func NewUploader(scope, id string) *Uploader {
 	}
 }
 
-func (u *Uploader) getMimetype(filename string) string {
-	extension := strings.Split(filename, ".")[1]
-
-	switch extension {
-	case "jpg":
-		return "image/jpeg"
-	case "png":
-		return "image/png"
-	case "gif":
-		return "image/gif"
-	case "html":
-		return "text/html"
-	case "css":
-		return "text/css"
-	case "js":
-		return "text/javascript"
-	}
-
-	return "text/plain"
-}
-
 func (u *Uploader) Do(f *File) error {
 	urls := fmt.Sprintf("http://storage.googleapis.com/%s/%s", f.Bucket, f.Path)
 	params := make(url.Values)
@@ -87,7 +65,7 @@ func (u *Uploader) Do(f *File) error {
 	}
 
 	req.Header.Set("User-Agent", "google-api-go-client/0.5")
-	req.Header.Set("Content-Type", u.getMimetype(f.Path))
+	req.Header.Set("Content-Type", http.DetectContentType(f.Object))
 	req.Header.Set("x-goog-project-id", u.ProjectId)
 
 	body := ioutil.NopCloser(bytes.NewReader(f.Object))
